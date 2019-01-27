@@ -1,0 +1,34 @@
+Requirements
+	An active canvas for visualizing blocks which can be interacted with
+		Selection box, 2 x 2 swap area for max 2 blocks
+	
+	Passive canvas for containing blocks which cannot be interacted with
+		Bottom of passive canvas is floor
+		Passive canvas is width x 1 area where a new row of blocks are
+			generated when the previously generated row enters the
+			active canvas
+		
+	Blocks requirements
+		Blocks scroll up through both cavnases at regular rate n
+		Blocks always fall down into empty slots
+		Blocks disappear only when swapped against a block of matching
+			color
+	
+	End game state
+		A block reaches the top border of the active canvas
+	
+	User input via directional pad
+		left, right, down, up to move the 2 x 2 swap area
+		a button to initiate a swap
+		
+	Match requirements
+		1.5 seconds time freeze per match
+		Matches can be chained
+		
+	Blocks match vertically and horizontally
+	Three or more in a row are a match
+	When a match occurs, blocks disappear
+	
+	GameController
+		Responsible for updating the positions of blocks
+		Applying simple animations to blocks
