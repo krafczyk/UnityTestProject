@@ -150,137 +150,64 @@ public class GameController : MonoBehaviour {
     {
         // Start Checking for combos, we start on upper left block.
         List<Block> BlocksToDestroy = new List<Block>();
-        List<Block> Blocks = new List<Block>();
-        for (int row_idx = PLAY_AREA_HEIGHT - 1; row_idx > 0; --row_idx)
+
+        // Row checking
+        for (int row_idx = 1; row_idx < PLAY_AREA_HEIGHT; ++row_idx)
         {
+            int count = 0;
             for (int col_idx = 0; col_idx < PLAY_AREA_WIDTH; ++col_idx)
             {
-                if (occupancyList[row_idx,col_idx] != null)
+                if (col_idx - 1 >= 0)
                 {
-                    Blocks.Add(occupancyList[row_idx, col_idx]);
-                }
-            }
-        }
-        foreach(Block theBlock in Blocks)
-        {
-            int init_row = theBlock.Row;
-            int init_col = theBlock.Col;
-            Block.BlockTypes the_type = theBlock.type;
-            // Up/Down search
-            int ud_combo_length = 1;
-            int up_extent = init_row;
-            int down_extent = init_row;
-            // Up
-            for (int row_idx = init_row + 1; row_idx < PLAY_AREA_HEIGHT; ++row_idx)
-            {
-                Block tempBlock = occupancyList[row_idx, init_col];
-                if (tempBlock)
-                {
-                    if (tempBlock.type != the_type)
-                    {
-                        break;
+                    Block prevBlock = occupancyList[row_idx, col_idx - 1];
+                    Block thisBlock = occupancyList[row_idx, col_idx];
+                    bool chain_broken = false;
+                    if(prevBlock) {
+                        if (!thisBlock)
+                        {
+                            chain_broken = true;
+                        }
+                        else
+                        {
+                            if (prevBlock.type == thisBlock.type)
+                            {
+                                if (count == 0)
+                                {
+                                    count = 2;
+                                }
+                                else
+                                {
+                                    count += 1;
+                                }
+                            }
+                            else
+                            {
+                                chain_broken = true;
+                            }
+                        }
                     }
-                    else
-                    {
-                        ud_combo_length += 1;
-                        up_extent = row_idx;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            // Right
-            for (int row_idx = init_row - 1; row_idx > 0; --row_idx)
-            {
-                Block tempBlock = occupancyList[row_idx, init_col];
-                if (tempBlock)
-                {
-                    if (tempBlock.type != the_type)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        ud_combo_length += 1;
-                        down_extent = row_idx;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            if (ud_combo_length >= 3)
-            {
-                for (int row_idx = down_extent; row_idx <= up_extent; ++row_idx)
-                {
-                    Block tempBlock = occupancyList[row_idx, init_col];
-                    if(!BlocksToDestroy.Contains(tempBlock)) {
-                        BlocksToDestroy.Add(tempBlock);
-                    }
-                }
-            }
-            // Left/Right search
-            int lr_combo_length = 1;
-            int left_extent = init_col;
-            int right_extent = init_col;
-            // Left
-            for (int col_idx = init_col - 1; col_idx >= 0; --col_idx)
-            {
-                Block tempBlock = occupancyList[init_row, col_idx];
-                if (tempBlock)
-                {
-                    if (tempBlock.type != the_type)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        lr_combo_length += 1;
-                        left_extent = col_idx;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            // Right
-            for (int col_idx = init_row + 1; col_idx < PLAY_AREA_WIDTH; ++col_idx)
-            {
-                Block tempBlock = occupancyList[init_row, col_idx];
-                if (tempBlock)
-                {
-                    if (tempBlock.type != the_type)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        lr_combo_length += 1;
-                        right_extent = col_idx;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            if (lr_combo_length >= 3)
-            {
-                for (int col_idx = left_extent; col_idx <= right_extent; ++col_idx)
-                {
-                    Block tempBlock = occupancyList[init_row, col_idx];
-                    if(!BlocksToDestroy.Contains(tempBlock)) {
-                        BlocksToDestroy.Add(tempBlock);
+                    if(chain_broken) {
+                        if (count >= 3)
+                        {
+                            for (int c_idx = 0; c_idx < count; ++c_idx)
+                            {
+                                Block blockToAdd = occupancyList[row_idx, col_idx - 1 - c_idx];
+                                if (!BlocksToDestroy.Contains(blockToAdd))
+                                {
+                                    BlocksToDestroy.Add(blockToAdd);
+                                }
+                            }
+                        }
+                        count = 0;
                     }
                 }
             }
         }
+
+        // Destroy detected matched blocks.
         foreach (Block theBlock in BlocksToDestroy)
         {
+            occupancyList[theBlock.Row, theBlock.Col] = null;
             theBlock.Destroy();
         }
     }
