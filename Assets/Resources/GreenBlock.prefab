@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33944189991296420}
   - component: {fileID: 23090837491469148}
   - component: {fileID: 65659471174193450}
+  - component: {fileID: 114790603267585776}
   m_Layer: 0
   m_Name: GreenBlock
   m_TagString: Untagged
@@ -96,3 +97,15 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114790603267585776
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1470773899451830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d50399617ca80a94197c320bd86d0993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 3

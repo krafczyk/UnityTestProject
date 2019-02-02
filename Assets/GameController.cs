@@ -4,16 +4,6 @@ using UnityEngine;
 using System;
 
 public class GameController : MonoBehaviour {
-
-    public enum BlockTypes
-    {
-        Empty,
-        Red,
-        Blue,
-        Green
-    }
-    public const int Num_Colors = 3+1;
-
     private const int PLAY_AREA_WIDTH = 6;
     private const int PLAY_AREA_HEIGHT = 13;
     public int GameSpeed;
@@ -21,14 +11,14 @@ public class GameController : MonoBehaviour {
     public float Bottom = -5.5f;
 
     private bool GameLost = false;
-    private int[,] occupancyList;
+    private Block[,] occupancyList;
 
     System.Random rng;
  
     void Awake()
     {
         rng = new System.Random(0);
-        occupancyList = new int[PLAY_AREA_HEIGHT,PLAY_AREA_WIDTH];
+        occupancyList = new Block[PLAY_AREA_HEIGHT,PLAY_AREA_WIDTH];
         occupancyList.Initialize();
     }
 
@@ -65,14 +55,33 @@ public class GameController : MonoBehaviour {
 
     }
 
-    public int GetBlock(int row, int col)
+    public Block GetBlock(int row, int col)
     {
         return occupancyList[row, col];
     }
 
-    public void AddBlock(int row, int col, int type)
+    private Vector3 getWorldPositionFromArray(int row, int col)
     {
-        occupancyList[row, col] = type;
+        return new Vector3(Left + col, Bottom + row, 0);
+    }
+        
+    public void AddBlock(int row, int col, Block.BlockTypes type)
+    {
+        Vector3 position = getWorldPositionFromArray(row, col);
+        GameObject newBlock = null;
+        switch (type) {
+            case Block.BlockTypes.Red:
+                newBlock = Instantiate(Resources.Load("RedBlock"), position, Quaternion.identity) as GameObject;
+                break;
+            case Block.BlockTypes.Green:
+                newBlock = Instantiate(Resources.Load("GreenBlock"), position, Quaternion.identity) as GameObject;
+                break;
+            case Block.BlockTypes.Blue:
+                newBlock = Instantiate(Resources.Load("BlueBlock"), position, Quaternion.identity) as GameObject;
+                break;
+        }
+        Debug.Log("Adding a new block");
+        occupancyList[row, col] = newBlock.GetComponent<Block>();
     }
 
     private bool PushUp()
@@ -81,7 +90,7 @@ public class GameController : MonoBehaviour {
         bool found_block = false;
         for (int idx = 0; idx < PLAY_AREA_WIDTH; ++idx)
         {
-            if (GetBlock(0, idx) != 0)
+            if (GetBlock(0, idx) == null)
             {
                 found_block = true;
                 break;
@@ -91,16 +100,21 @@ public class GameController : MonoBehaviour {
         {
             return false;
         }
-        for (int row_idx = PLAY_AREA_HEIGHT; row_idx > 1; ++row_idx)
+        for (int row_idx = PLAY_AREA_HEIGHT-1; row_idx >= 1; --row_idx)
         {
             for(int col_idx = 0; col_idx < PLAY_AREA_WIDTH; ++col_idx)
             {
                 occupancyList[row_idx, col_idx] = occupancyList[row_idx - 1, col_idx];
+                if (occupancyList[row_idx, col_idx] != null)
+                {
+                    Debug.Log("Setting a new position!");
+                    occupancyList[row_idx, col_idx].Pos = getWorldPositionFromArray(row_idx, col_idx);
+                }
             }
         }
         for (int col_idx = 0; col_idx < PLAY_AREA_WIDTH; ++col_idx)
         {
-            occupancyList[0, col_idx] = 0;
+            occupancyList[0, col_idx] = null;
         }
         return true;
     }
@@ -109,7 +123,8 @@ public class GameController : MonoBehaviour {
     {
         for (int i = 0; i < PLAY_AREA_WIDTH; ++i)
         {
-            AddBlock(0, i, rng.Next(1, Num_Colors));
+            Block.BlockTypes type = (Block.BlockTypes) rng.Next(0, Block.Num_Colors-1);
+            AddBlock(0, i, type);
         }
     }
 
@@ -118,26 +133,31 @@ public class GameController : MonoBehaviour {
         if (!PushUp())
         {
             GameLost = true;
+        } else {
+            AddRow();
         }
-        AddRow();
         yield return new WaitForSeconds(GameSpeed);
     }
 
-    public void DrawBlock(int row, int col, int type)
+    public GameObject DrawBlock(int row, int col, int type)
     {
         float x_pos = Left + col;
         float y_pos = Bottom + row;
         switch (type) {
             case 0:
+                return null;
                 break;
             case 1:
-                GameObject RedBlock = Instantiate(Resources.Load("RedBlock"), new Vector3(x_pos, y_pos, 0), Quaternion.identity) as GameObject;
+                return Instantiate(Resources.Load("RedBlock"), new Vector3(x_pos, y_pos, 0), Quaternion.identity) as GameObject;
                 break;
             case 2:
-                GameObject GreenBlock = Instantiate(Resources.Load("GreenBlock"), new Vector3(x_pos, y_pos, 0), Quaternion.identity) as GameObject;
+                return Instantiate(Resources.Load("GreenBlock"), new Vector3(x_pos, y_pos, 0), Quaternion.identity) as GameObject;
                 break;
             case 3:
-                GameObject BlueBlock = Instantiate(Resources.Load("BlueBlock"), new Vector3(x_pos, y_pos, 0), Quaternion.identity) as GameObject;
+                return Instantiate(Resources.Load("BlueBlock"), new Vector3(x_pos, y_pos, 0), Quaternion.identity) as GameObject;
+                break;
+            default:
+                return null;
                 break;
         }
     }
