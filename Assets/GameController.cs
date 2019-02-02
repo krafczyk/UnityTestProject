@@ -29,20 +29,12 @@ public class GameController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
+        StartCoroutine("StepGame");
 	}
 
     // Update is called once per frame
     void Update()
     {
-        if (GameLost)
-        {
-            StopCoroutine("StepGame");
-        }
-        else {
-            AddRow();
-            StartCoroutine("StepGame");
-        }
 	}
 
     void FixedUpdate()
@@ -80,7 +72,6 @@ public class GameController : MonoBehaviour {
                 newBlock = Instantiate(Resources.Load("BlueBlock"), position, Quaternion.identity) as GameObject;
                 break;
         }
-        Debug.Log("Adding a new block");
         occupancyList[row, col] = newBlock.GetComponent<Block>();
     }
 
@@ -129,13 +120,12 @@ public class GameController : MonoBehaviour {
 
     public IEnumerator StepGame()
     {
-        if (!PushUp())
+        while (PushUp())
         {
-            GameLost = true;
-        } else {
             AddRow();
+            yield return new WaitForSeconds(GameSpeed);
         }
-        yield return new WaitForSeconds(GameSpeed);
+        GameLost = true;
     }
 
     public GameObject DrawBlock(int row, int col, int type)
