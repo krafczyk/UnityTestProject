@@ -107,7 +107,6 @@ public class GameController : MonoBehaviour {
                 occupancyList[row_idx, col_idx] = occupancyList[row_idx - 1, col_idx];
                 if (occupancyList[row_idx, col_idx] != null)
                 {
-                    Debug.Log("Setting a new position!");
                     occupancyList[row_idx, col_idx].Pos = getWorldPositionFromArray(row_idx, col_idx);
                 }
             }
