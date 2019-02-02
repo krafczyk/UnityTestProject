@@ -90,7 +90,7 @@ public class GameController : MonoBehaviour {
         bool found_block = false;
         for (int idx = 0; idx < PLAY_AREA_WIDTH; ++idx)
         {
-            if (GetBlock(0, idx) == null)
+            if (GetBlock(PLAY_AREA_HEIGHT-1, idx) != null)
             {
                 found_block = true;
                 break;
