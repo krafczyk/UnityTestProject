@@ -15,6 +15,8 @@ public class Block : MonoBehaviour
     public BlockTypes type;
 
     private Vector3 pos;
+    private int row;
+    private int col;
     public GameObject BlockObject {
         get { return gameObject; }
     }
@@ -23,6 +25,22 @@ public class Block : MonoBehaviour
     {
         get { return gameObject.transform.position; }
         set { gameObject.transform.position = value; }
+    }
+
+    public int Row
+    {
+        get { return row; }
+        set { row = value; }
+    }
+    public int Col
+    {
+        get { return col; }
+        set { col = value; }
+    }
+
+    public void Destroy()
+    {
+        GameObject.Destroy(gameObject);
     }
 
 	private void Awake()
