@@ -6,7 +6,7 @@ using System;
 public class GameController : MonoBehaviour {
     private const int PLAY_AREA_WIDTH = 6;
     private const int PLAY_AREA_HEIGHT = 13;
-    public int GameSpeed;
+    public float GameSpeed;
     public float Left = -3;
     public float Bottom = -5.5f;
 
@@ -133,8 +133,9 @@ public class GameController : MonoBehaviour {
         while (PushUp())
         {
             AddRow();
+            yield return new WaitForSeconds(GameSpeed/2.0f);
             CheckMatch();
-            yield return new WaitForSeconds(GameSpeed);
+            yield return new WaitForSeconds(GameSpeed/2.0f);
         }
         GameLost = true;
     }
