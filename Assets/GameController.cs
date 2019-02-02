@@ -14,10 +14,15 @@ public class GameController : MonoBehaviour {
     private Block[,] occupancyList;
 
     System.Random rng;
- 
+
+    private Int32 GetUnixTimestamp()
+    {
+        return (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970,1,1)).TotalSeconds);
+    }
+
     void Awake()
     {
-        rng = new System.Random(0);
+        rng = new System.Random(GetUnixTimestamp());
         occupancyList = new Block[PLAY_AREA_HEIGHT,PLAY_AREA_WIDTH];
         occupancyList.Initialize();
     }
@@ -113,7 +118,7 @@ public class GameController : MonoBehaviour {
     {
         for (int i = 0; i < PLAY_AREA_WIDTH; ++i)
         {
-            Block.BlockTypes type = (Block.BlockTypes) rng.Next(0, Block.Num_Colors-1);
+            Block.BlockTypes type = (Block.BlockTypes) rng.Next(0, Block.Num_Colors);
             AddBlock(0, i, type);
         }
     }
