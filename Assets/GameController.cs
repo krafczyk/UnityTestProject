@@ -77,10 +77,12 @@ public class GameController : MonoBehaviour {
                 newBlock = Instantiate(Resources.Load("BlueBlock"), position, Quaternion.identity) as GameObject;
                 break;
         }
-        Block theBlock = newBlock.GetComponent<Block>();
-        theBlock.Row = row;
-        theBlock.Col = col;
-        occupancyList[row, col] = theBlock;
+        if(newBlock != null) {
+            Block theBlock = newBlock.GetComponent<Block>();
+            theBlock.Row = row;
+            theBlock.Col = col;
+            occupancyList[row, col] = theBlock;
+        }
     }
 
     private bool PushUp()
@@ -103,12 +105,12 @@ public class GameController : MonoBehaviour {
         {
             for(int col_idx = 0; col_idx < PLAY_AREA_WIDTH; ++col_idx)
             {
-                occupancyList[row_idx, col_idx] = occupancyList[row_idx - 1, col_idx];
-                if (occupancyList[row_idx, col_idx] != null)
+                Block theBlock = occupancyList[row_idx, col_idx] = occupancyList[row_idx - 1, col_idx];
+                if (theBlock != null)
                 {
-                    occupancyList[row_idx, col_idx].Pos = getWorldPositionFromArray(row_idx, col_idx);
-                    occupancyList[row_idx, col_idx].Row = row_idx;
-                    occupancyList[row_idx, col_idx].Col = col_idx;
+                    theBlock.Pos = getWorldPositionFromArray(row_idx, col_idx);
+                    theBlock.Row = row_idx;
+                    theBlock.Col = col_idx;
                 }
             }
         }
@@ -162,8 +164,8 @@ public class GameController : MonoBehaviour {
                     Block prevBlock = occupancyList[row_idx, col_idx - 1];
                     Block thisBlock = occupancyList[row_idx, col_idx];
                     bool chain_broken = false;
-                    if(prevBlock) {
-                        if (!thisBlock)
+                    if(prevBlock != null) {
+                        if (thisBlock == null)
                         {
                             chain_broken = true;
                         }
@@ -199,6 +201,83 @@ public class GameController : MonoBehaviour {
                             }
                         }
                         count = 0;
+                    }
+                }
+            }
+            // Remove combo at edge of playable area.
+            if(count >= 3)
+            {
+                for(int c_idx = 0; c_idx < count; ++c_idx)
+                {
+                    Block blockToAdd = occupancyList[row_idx, PLAY_AREA_WIDTH - 1 - c_idx];
+                    if (!BlocksToDestroy.Contains(blockToAdd))
+                    {
+                        BlocksToDestroy.Add(blockToAdd);
+                    }
+                }
+            }
+        }
+
+        // Col checking
+        for (int col_idx = 0; col_idx < PLAY_AREA_WIDTH; ++col_idx)
+        {
+            int count = 0;
+            for (int row_idx = 1; row_idx < PLAY_AREA_HEIGHT; ++row_idx)
+            {
+                if (row_idx - 1 >= 1)
+                {
+                    Block prevBlock = occupancyList[row_idx - 1, col_idx];
+                    Block thisBlock = occupancyList[row_idx, col_idx];
+                    bool chain_broken = false;
+                    if(prevBlock != null) {
+                        if (thisBlock == null)
+                        {
+                            chain_broken = true;
+                        }
+                        else
+                        {
+                            if (prevBlock.type == thisBlock.type)
+                            {
+                                if (count == 0)
+                                {
+                                    count = 2;
+                                }
+                                else
+                                {
+                                    count += 1;
+                                }
+                            }
+                            else
+                            {
+                                chain_broken = true;
+                            }
+                        }
+                    }
+                    if(chain_broken) {
+                        if (count >= 3)
+                        {
+                            for (int c_idx = 0; c_idx < count; ++c_idx)
+                            {
+                                Block blockToAdd = occupancyList[row_idx - 1 - c_idx, col_idx];
+                                if (!BlocksToDestroy.Contains(blockToAdd))
+                                {
+                                    BlocksToDestroy.Add(blockToAdd);
+                                }
+                            }
+                        }
+                        count = 0;
+                    }
+                }
+            }
+            // Remove combo at edge of playable area.
+            if(count >= 3)
+            {
+                for(int c_idx = 0; c_idx < count; ++c_idx)
+                {
+                    Block blockToAdd = occupancyList[PLAY_AREA_HEIGHT - 1 - c_idx, col_idx];
+                    if (!BlocksToDestroy.Contains(blockToAdd))
+                    {
+                        BlocksToDestroy.Add(blockToAdd);
                     }
                 }
             }
